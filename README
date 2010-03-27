@@ -25,3 +25,18 @@ EchelonMiddleware.del_user()                 # It is always safe to call this, e
 The middleware automatically sets/deletes the current user for HTTP requests.
 For other uses (management commands, scripts), you will need to do this
 yourself.
+
+echelon also provides a CurrentUserField, which can be used for auditing
+purposes. Use it as follows:
+
+from echelon.fields import CurrentUserField
+
+class MyModel(models.Model):
+    ....
+    creator = CurrentUserField(add_only=True, related_name="created_mymodels")
+    last_editor = CurrentUserField(related_name="last_edited_mymodels")
+    ...
+
+If your objects can be edited by anonymous users, you must make sure you pass
+blank=True and null=True to the fields constructor. This field is a ForeignKey
+to the django.contrib.auth.models.User model and you can treat it as such.

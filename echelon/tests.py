@@ -9,7 +9,10 @@ from echelon.middleware import EchelonMiddleware
 
 class TestModel(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    creator = CurrentUserField(add_only=True, related_name="tests_created")
+    creator = CurrentUserField(add_only=True,
+                               blank=True,
+                               null=True,
+                               related_name="tests_created")
 
 
 def test_view(request):
@@ -39,3 +42,9 @@ class EchelonTestCase(TestCase):
         EchelonMiddleware.del_user()
         test_instance = TestModel.objects.get(name="TEST")
         self.assertEqual(test_instance.creator, user)
+
+    def test_current_user_field_with_no_active_user(self):
+        EchelonMiddleware.del_user()
+        TestModel.objects.create(name="TEST")
+        test_instance = TestModel.objects.get(name="TEST")
+        self.assertEqual(test_instance.creator, None)

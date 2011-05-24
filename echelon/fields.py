@@ -30,11 +30,18 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.fields.related import ForeignKey, ManyToOneRel
-
 from echelon.middleware import EchelonMiddleware
+
 
 if 'echelon' not in settings.INSTALLED_APPS:
     raise ValueError("Echelon middleware is not enabled")
+
+
+# Register OrderingField with south
+if 'south' in settings.INSTALLED_APPS:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([], ["^echelon\.fields\.CurrentUserField"])
+
 
 class CurrentUserField(ForeignKey):
     def __init__(self, to_field=None, rel_class=ManyToOneRel, **kwargs):

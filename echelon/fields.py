@@ -45,10 +45,10 @@ if 'south' in settings.INSTALLED_APPS:
 
 class CurrentUserField(ForeignKey):
     def __init__(self, to_field=None, rel_class=ManyToOneRel, **kwargs):
-        to = User
+        kwargs['to'] = User
         kwargs['editable'] = False
         self.add_only = kwargs.pop('add_only', False)
-        super(CurrentUserField, self).__init__(to, to_field, rel_class, **kwargs)
+        super(CurrentUserField, self).__init__(to_field, rel_class, **kwargs)
 
     def pre_save(self, model_instance, add):
         if add or not self.add_only:

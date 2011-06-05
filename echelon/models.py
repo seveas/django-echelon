@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from echelon.fields import CurrentUserField, ChangelogField
@@ -115,4 +116,7 @@ blacklist = (
     ('contenttypes', 'ContentType'),
     # Not useful to save
     ('sessions', 'Session'),
-)
+    # Admin sideeffects
+    ('auth', 'Message'),
+    ('admin', 'LogEntry'),
+) + getattr(settings, 'ECHELON_LOGGING_BLACKLIST', tuple())

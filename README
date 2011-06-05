@@ -1,26 +1,42 @@
-Copyright (c) 2009,2010 Dennis Kaarsemaker <dennis@kaarsemaker.net>
-Small piece of middleware to be able to access authentication data from
-everywhere in the django code.
+Django-echelon - BIg Brother for your Django projects
 
-How often do you want to access authentication information in a model's save()
-method or other places where this is not easily available? In my case very
-often so I wrote a small piece of middleware to make this information always
-available.
+Copyright (c) 2009-2011 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+              2011 Atamert Ölçgun <muhuk@muhuk.com>
+
+Overview
+--------
+
+Echelon does what its name implies: it keeps an eye on users. It allows you to
+find out the current user from anywehere in your code and it tracks every
+action users do.
+
+Installing
+----------
 
 Install: python setup.py install
-Usage: 
-- Add 'echelon' to INSTALLED_APPS 
+- Add 'echelon' to INSTALLED_APPS in your settings.py
 - Add 'echelon.middleware.EchelonMiddleware' to MIDDLEWARE_CLASSES after the
   authentication and session middleware
+
+Who is the current user
+-----------------------
 
 To set/get the user info, there is the following API:
 
 from echelon.middleware import EchelonMiddleware
 
-EchelonMiddleware.set_user(some_user)        # This will set the current user for this thread to some_user
-user = EchelonMiddleware.get_user()          # This will return None if there is no current user
-user = EchelonMiddleware.get_user(some_user) # This will return some_user if there is no current user
-EchelonMiddleware.del_user()                 # It is always safe to call this, even if there is no current user
+# Set the current user for this thread. Accepts user objects and loginnames.
+EchelonMiddleware.set_user(some_user)
+
+# Get the current user or None
+user = EchelonMiddleware.get_user()
+
+# This will return some_user if there is no current user
+user = EchelonMiddleware.get_user(some_user)
+
+# Forget the current user. It is always safe to call this, even if there is no
+# current user.
+EchelonMiddleware.del_user()
 
 The middleware automatically sets/deletes the current user for HTTP requests.
 For other uses (management commands, scripts), you will need to do this
@@ -37,6 +53,30 @@ class MyModel(models.Model):
     last_editor = CurrentUserField(related_name="last_edited_mymodels")
     ...
 
-If your objects can be edited by anonymous users, you must make sure you pass
-blank=True and null=True to the fields constructor. This field is a ForeignKey
-to the django.contrib.auth.models.User model and you can treat it as such.
+This field is a ForeignKey to the django.contrib.auth.models.User model and you
+can treat it as such.
+
+Automatic change logging
+------------------------
+Echelon will also automatically log all changes to almost all objects. Only
+sessions and contenttypes are not logged. If you want to exclude other objects,
+you can set this in settings.py. For example, if you don't want changes to
+Permission objects logged you can add this:
+
+ECHELON_LOGGING_BLACKLIST = (
+    ('auth', 'Permission'),
+)
+
+You can also set an attribute in your model class to prevent logging:
+
+class MyModel(models.Model):
+    ...
+    echelon_log_changes = False
+
+The first method is prefered for models you don't control, the second is better
+for your own models.
+
+To be able to review the changelog, add this pattern to the patterns in your
+urls.py:
+
+    ('^changelog/', include('echelon.urls'))

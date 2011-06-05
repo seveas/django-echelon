@@ -1,0 +1,64 @@
+{% extends "admin/base_site.html" %}
+{% load adminmedia admin_list i18n echelon_changelog %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+  {{ media.css }}
+  <style>
+    #changelist table thead th:first-child {width: inherit}
+  </style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+{% endblock %}
+
+{% block bodyclass %}change-list{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block coltype %}flex{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    <div class="module filtered" id="changelist">
+
+      {% block filters %}
+          <div id="changelist-filter">
+            <h2>{% trans 'Filter' %}</h2>
+            <h3>By model</h3>
+            <ul>
+              {% for model in models %}
+              <li {% ifequal selected model.id %}class="selected"{% endifequal %}>
+                <a href="./?content_type={{ model.id }}">{{ model.app_label }}.{{ model.model }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+      {% endblock %}
+
+      {% block result_list %}
+      <div class="results">
+      <table id="result_list" cellspacing="0">
+        <thead><tr><th>Object</th><th>Editor</th><th>Action</th><th>Timestamp</th></tr></thead>
+        <tbody>
+        {% for log in page.object_list %}
+        <tr class="row1">
+            <th>({{ log.content_type.model }}) {{ log.object_str }}</th>
+          <td>{{ log.who.get_full_name }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ log.timestamp }}</td>
+        </tr>
+        <tr><td colspan="4">{% changelog_detail log.changes %}</td></tr>
+        </tbody>
+        {% endfor %}
+      </table>
+      </table>
+      {% endblock %}
+      {% block pagination %}{% pagination fake_cl %}{% endblock %}
+    </div>
+  </div>
+{% endblock %}

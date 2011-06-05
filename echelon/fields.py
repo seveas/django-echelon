@@ -37,7 +37,7 @@ if 'echelon' not in settings.INSTALLED_APPS:
     raise ValueError("Echelon middleware is not enabled")
 
 
-# Register OrderingField with south
+# Register fields with south, if installed
 if 'south' in settings.INSTALLED_APPS:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules([], ["^echelon\.fields\.CurrentUserField"])
@@ -47,7 +47,7 @@ class CurrentUserField(ForeignKey):
     def __init__(self, to_field=None, rel_class=ManyToOneRel, **kwargs):
         self.add_only = kwargs.pop('add_only', False)
         kwargs.update({
-          'editable': True,
+          'editable': False,
           'rel_class': rel_class,
           'to': User,
           'to_field': to_field,

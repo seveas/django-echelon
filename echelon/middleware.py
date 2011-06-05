@@ -28,6 +28,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import thread
+from django.contrib.auth.models import User
 
 class EchelonMiddleware(object):
     """Always have access to the current user"""
@@ -52,6 +53,8 @@ class EchelonMiddleware(object):
     @classmethod
     def set_user(cls, user):
         """Store user info"""
+        if isinstance(user, basestring):
+            user = User.objects.get(username=user)
         cls.__users[thread.get_ident()] = user
 
     @classmethod

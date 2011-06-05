@@ -29,8 +29,11 @@
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import SubfieldBase
+from django.db.models.fields import TextField
 from django.db.models.fields.related import ForeignKey, ManyToOneRel
 from echelon.middleware import EchelonMiddleware
+import pickle
 
 
 if 'echelon' not in settings.INSTALLED_APPS:
@@ -41,6 +44,7 @@ if 'echelon' not in settings.INSTALLED_APPS:
 if 'south' in settings.INSTALLED_APPS:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules([], ["^echelon\.fields\.CurrentUserField"])
+    add_introspection_rules([], ["^echelon\.fields\.ChangelogField"])
 
 
 class CurrentUserField(ForeignKey):
@@ -48,6 +52,7 @@ class CurrentUserField(ForeignKey):
         self.add_only = kwargs.pop('add_only', False)
         kwargs.update({
           'editable': False,
+          'null': True,
           'rel_class': rel_class,
           'to': User,
           'to_field': to_field,
@@ -61,3 +66,17 @@ class CurrentUserField(ForeignKey):
                 setattr(model_instance, self.attname, user.pk)
                 return user.pk
         return super(CurrentUserField, self).pre_save(model_instance, add)
+
+
+class ChangelogField(TextField):
+    __metaclass__ = SubfieldBase
+    marker = '__Echelon_ChangelogField'
+
+    def to_python(self, value):
+        if isinstance(value, basestring):
+            if value.startswith(self.marker):
+                return pickle.loads(str(value[len(self.marker):]))
+        return value
+
+    def get_prep_value(self, value):
+        return self.marker + pickle.dumps(value, )

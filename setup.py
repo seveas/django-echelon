@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(name='django-echelon',
     version=".".join(map(str, __import__("echelon").__version__)),
-    description='Middleware to make user information always available',
+    description='Middleware to make user information always available and to automatically log changes',
     author='Dennis Kaarsemaker',
     author_email='dennis@kaarsemaker.net',
     url='http://github.com/seveas/django-echelon',

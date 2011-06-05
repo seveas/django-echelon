@@ -1,4 +1,5 @@
-# Copyright (c) 2009,2010 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# Copyright (c) 2009-2011 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+#               2011 Atamert Olcgen <muhuk@muhuk.com>
 # Small piece of middleware to be able to access authentication data from
 # everywhere in the django code.
 #

@@ -11,6 +11,8 @@ DATABASES = {
     },
 }
 
+SITE_ID = 1
+
 DEBUG = True
 
 SECRET_KEY = '$yir+-pws5+1qd5#ny9e$a=^tr$@z(7Tr!tY4j-ytj1**^e+##'

@@ -77,15 +77,23 @@ class ChangelogEntry(models.Model):
                     'action': 'change'
                 })
             else:
-                old = model.objects.get(pk=instance.pk)
-                if kwargs.get('action',None) == 'delete':
-                    kwargs['changes'] = dict([(x, (unicode(getattr(old, x)), None)) for x in fields])
-                else:
+                try:
+                    old = model.objects.get(pk=instance.pk)
+                except model.DoesNotExist:
+                    # Happens if we're loading fixtures
                     kwargs.update({
-                        'changes': dict([(x, (unicode(getattr(old, x)), unicode(getattr(instance, x))))
-                                        for x in fields if getattr(instance, x) != getattr(old, x)]),
-                        'action': 'change'
+                        'changes': dict([(x, (None, unicode(getattr(instance, x)))) for x in fields]),
+                        'action': 'add'
                     })
+                else:
+                    if kwargs.get('action',None) == 'delete':
+                        kwargs['changes'] = dict([(x, (unicode(getattr(old, x)), None)) for x in fields])
+                    else:
+                        kwargs.update({
+                            'changes': dict([(x, (unicode(getattr(old, x)), unicode(getattr(instance, x))))
+                                            for x in fields if getattr(instance, x) != getattr(old, x)]),
+                            'action': 'change'
+                        })
         return super(ChangelogEntry, self).__init__(*args, **kwargs)
 
 # Define the signal handlers to automatically save changelogs

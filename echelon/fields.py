@@ -63,9 +63,12 @@ class CurrentUserField(ForeignKey):
     def pre_save(self, model_instance, add):
         if add or not self.add_only:
             user = EchelonMiddleware.get_user()
-            if user:
+            if user and not user.is_anonymous():
                 setattr(model_instance, self.attname, user.pk)
                 return user.pk
+            else:
+                setattr(model_instance, self.attname, None)
+                return None
         return super(CurrentUserField, self).pre_save(model_instance, add)
 
 

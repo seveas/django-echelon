@@ -32,7 +32,7 @@ from django.conf.urls.defaults import patterns
 from django.db import models
 from django.http import HttpResponse
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from echelon.fields import CurrentUserField
 from echelon.middleware import EchelonMiddleware
 from echelon.models import ChangelogEntry
@@ -83,6 +83,12 @@ class EchelonTestCase(TestCase):
 
     def test_current_user_field_with_no_active_user(self):
         EchelonMiddleware.del_user()
+        TestModel.objects.create(name="TEST")
+        test_instance = TestModel.objects.get(name="TEST")
+        self.assertEqual(test_instance.creator, None)
+
+    def test_anonymous(self):
+        EchelonMiddleware.set_user(AnonymousUser())
         TestModel.objects.create(name="TEST")
         test_instance = TestModel.objects.get(name="TEST")
         self.assertEqual(test_instance.creator, None)
